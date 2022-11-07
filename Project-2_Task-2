@@ -1,0 +1,93 @@
+#Colin McGough, CS 2640
+#11/07/2022
+#Ovjective: To complete Task #2
+
+.data
+array: .word 32, 56, 78, 66, 88, 90, 93, 100, 101, 82
+#text formatting
+grade: .asciiz "\nThe grade for "
+is: .asciiz " is: "
+#wrote this as an entire label
+overPercent: .asciiz "A with Extra Credit"
+
+.text
+main: 
+	#load address of array base address into register $s0
+	la $s0, array
+	#instantiate counter
+	li $s1, 1
+	#jump to loop
+	j loop
+loop: 
+	#loop condition to exit, bascially just length of array
+	beq $s1, 11, exit
+	#print out first message
+	li $v0, 4
+	la $a0, grade
+	syscall
+	#load array[i] into $s2
+	lw $s2, ($s0)
+	#add 4 to $s0 in order to increase to next word
+	addi $s0, $s0, 4
+	#move into a0 to print and print
+	move $a0, $s2
+	li $v0, 1
+	syscall
+	#print "is" portion of message
+	li $v0, 4
+	la $a0, is
+	syscall
+	
+	#add 1 to the counter
+	addi $s1, $s1, 1
+	
+	#branch options for all letter grades
+	ble $s2, 59, F
+	ble $s2, 69, D
+	ble $s2, 79, C
+	ble $s2, 89, B
+	ble $s2, 100, A
+	bgt $s2, 100, over
+	
+	
+	
+#print F and jump back to loop
+F:
+	li $a0, 'F'
+	li $v0, 11
+	syscall
+	j loop
+#print D and jump back to loop
+D:
+	li $a0, 'D'
+	li $v0, 11
+	syscall
+	j loop
+#print C and jump back to loop
+C:
+	li $a0, 'C'
+	li $v0, 11
+	syscall
+	j loop
+#print B and jump back to loop
+B:
+	li $a0, 'B'
+	li $v0, 11
+	syscall
+	j loop
+#print A and jump back to loop
+A:
+	li $a0, 'A'
+	li $v0, 11
+	syscall
+	j loop
+#print overPercent label and jump back to loop
+over:
+	li $v0, 4
+	la $a0, overPercent
+	syscall
+	j loop
+#exit label
+exit: 
+	li $v0, 10
+	syscall
