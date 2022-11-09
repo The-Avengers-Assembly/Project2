@@ -1,0 +1,71 @@
+#CS2640
+#Author: Bryce Lam
+#Objective: Ask user of base and power and return result of exponent
+.data
+askBase: .asciiz "Enter a number for 'x': "
+askPower: .asciiz "Enter a number for 'y': "
+resultMsg: .asciiz "'x' to the power of 'y' is: "
+.text
+main:
+	#print message for base
+	li $v0, 4
+	la $a0, askBase
+	syscall
+	
+	#get base
+	li $v0, 5
+	syscall
+	move $t0, $v0
+	
+	#print message for power
+	li $v0, 4
+	la $a0, askPower
+	syscall
+	
+	#get power
+	li $v0, 5
+	syscall
+	move $t1, $v0
+	
+	#if power is 0
+	beq $t1, 0, noPower
+	
+	#set base as the result ($t3)
+	move $t3, $t0
+	#if power is 1, immediately print result
+	beq $t1, 1, result
+	
+	#set counter as 1
+	li $t2, 1
+	
+loop:
+	#multiple base number with itself
+	mult $t3, $t0
+	mflo $t3
+	
+	#counter
+	add $t2, $t2, 1
+	
+	blt $t2, $t1, loop
+	#to loop or not
+	j result
+	
+noPower:
+	#result is 0
+	li $t3, 0
+	
+result:
+	#print result message
+	li $v0, 4
+	la $a0, resultMsg
+	syscall
+
+	#print result
+	li $v0, 1
+	move $a0, $t3
+	syscall
+	
+	j exit
+exit:
+	li $v0 10
+	syscall
