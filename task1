@@ -1,0 +1,135 @@
+#Colin McGough, Evan Cheng, Loc Nguyen, Bryce Lam CS 2640
+#11/08/2022
+#Objective: To complete Task #1: Return a Letter Grade from User Input
+
+.data
+#text formatting
+menu: .asciiz "\n\n\n================= Main Menu ================="
+optionDisplay: .asciiz "\n\n(1)Get Letter Grade \n(2)Exit Program \n \nEnter '1' or '2' for your selection: "
+loopEnd: .asciiz "----------------------------------------------\n"
+prompt: .asciiz "\nPlease enter a score as an integer value: "
+
+#output text
+grade: .asciiz "\n  >>The grade for "
+is: .asciiz " is: "
+errorMsg: .asciiz "\n*****Please enter a valid input.*****\n"
+exitMsg: .asciiz "\nThe program will now terminate :D \n\n"
+
+#wrote this as an entire label
+overPercent: .asciiz "A with Extra Credit"
+
+.text
+main: 
+	#display menu and jump to loop
+	li $v0, 4
+	la $a0, menu
+	syscall
+	j loop
+
+loop:
+	#display options to user
+	li $v0, 4
+	la $a0, optionDisplay
+	syscall
+	
+	#obtain user input (1 or 2) and store into $s0
+	li $v0, 5
+	syscall
+	move $s0, $v0
+	
+	#(1) process grade or (2) exit, else error
+	beq $s0, 1, processGrade
+	beq $s0, 2, exit
+	j error
+
+processGrade:
+	#display prompt and obtain user input
+	li $v0, 4
+	la $a0, prompt
+	syscall
+	li $v0, 5
+	syscall
+	move $s1, $v0
+	
+	#print out first message
+	li $v0, 4
+	la $a0, grade
+	syscall
+	
+	#print out user's input (in $s0)
+	li $v0, 1
+	move $a0, $s1
+	syscall
+	
+	#print "is" portion of message
+	li $v0, 4
+	la $a0, is
+	syscall
+	
+	#branch options for all letter grades
+	ble $s1, 59, F
+	ble $s1, 69, D
+	ble $s1, 79, C
+	ble $s1, 89, B
+	ble $s1, 100, A
+	bgt $s1, 100, over
+	
+	
+	
+#print F and jump back to loop
+F:
+	li $a0, 'F'
+	li $v0, 11
+	syscall
+	j loop
+	
+#print D and jump back to loop
+D:
+	li $a0, 'D'
+	li $v0, 11
+	syscall
+	j loop
+
+#print C and jump back to loop
+C:
+	li $a0, 'C'
+	li $v0, 11
+	syscall
+	j loop
+
+#print B and jump back to loop
+B:
+	li $a0, 'B'
+	li $v0, 11
+	syscall
+	j loop
+
+#print A and jump back to loop
+A:
+	li $a0, 'A'
+	li $v0, 11
+	syscall
+	j loop
+
+#print overPercent label and jump back to loop
+over:
+	li $v0, 4
+	la $a0, overPercent
+	syscall
+	j loop
+
+#error handling and jump back to loop
+error:
+	li $v0, 4
+	la $a0, errorMsg
+	syscall
+	j loop
+
+#exit message
+exit: 
+	li $v0, 4
+	la $a0, exitMsg
+	syscall
+	
+	li $v0, 10
+	syscall
