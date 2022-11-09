@@ -5,6 +5,7 @@
 askBase: .asciiz "Enter a number for 'x': "
 askPower: .asciiz "Enter a number for 'y': "
 resultMsg: .asciiz "'x' to the power of 'y' is: "
+fraction: .asciiz "1/"
 .text
 main:
 	#print message for base
@@ -28,8 +29,12 @@ main:
 	move $t1, $v0
 	
 	#if power is 0
-	beq $t1, 0, noPower
+	beq $t1, 0, zeroPower
 	
+	#if power is negative
+	blt $t1, 0, negPower
+	
+setUp: 
 	#set base as the result ($t3)
 	move $t3, $t0
 	#if power is 1, immediately print result
@@ -46,21 +51,49 @@ loop:
 	#counter
 	add $t2, $t2, 1
 	
+	#to loop
 	blt $t2, $t1, loop
-	#to loop or not
+	j result
+
+zeroPower:
+	#result is 0
+	li $t3, 1
 	j result
 	
-noPower:
-	#result is 0
-	li $t3, 0
+negPower:
+	#boolean to indicate its negative power
+	li $s1, 1
 	
+	#convert from negative to positive
+	#double the neg number and subtract it to its orginal
+	#eg: if base is -3, -3-(-3*2) = 3
+	li $s0, 2
+	mult $t1, $s0
+	mflo $t5
+	
+	sub $t1, $t1, $t5
+	
+	j setUp
+	
+fractionLabel:
+	#prints "1/"
+	li $v0, 4
+	la $a0, fraction
+	syscall
+	
+	j result2
+
 result:
 	#print result message
 	li $v0, 4
 	la $a0, resultMsg
 	syscall
 
+	#If boolean $s1 is 1, print in fraction
+	beq $s1, 1, fractionLabel
+	
 	#print result
+result2:
 	li $v0, 1
 	move $a0, $t3
 	syscall
